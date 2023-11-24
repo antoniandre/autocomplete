@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const items = [
   'Lorem ipsum',
@@ -13,13 +13,25 @@ const items = [
   'Provident culpa',
   'Hic temporibus'
 ]
+
+const keywords = ref('')
+const selection = ref('')
+const filteredItems = computed(() => items.filter(item => item.includes(keywords.value)))
+
+const selectItem = item => {
+  keywords.value = item
+}
+
+const onKeydown = e => {
+  console.log(e.which)
+}
 </script>
 
 <template lang="pug">
 .autocomplete
-  input.autocomplete__input
+  input.autocomplete__input(v-model="keywords" @keydown="onKeydown")
   ul.autocomplete__menu
-    li(v-for="(item, i) in items" :key="i") {{ item }}
+    li(v-for="(item, i) in filteredItems" :key="i" @click="selectItem(item)") {{ item }}
 </template>
 
 <style lang="scss">
