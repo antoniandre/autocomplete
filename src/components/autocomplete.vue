@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-const items = [
+const items = ref([
   'Lorem ipsum',
   'Dicta autem',
   'Dolores accusantium',
@@ -11,15 +11,27 @@ const items = [
   'Atque architecto',
   'Pariatur',
   'Provident culpa',
-  'Hic temporibus'
-]
+  'Hic temporibus',
+  'piña colada'
+])
+
+const optimizedItems = computed(() => items.value.map(item => {
+  return {
+    label: item,
+    optimizedString: item.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+  }
+}))
 
 const keywords = ref('')
+const normalizedKeywords = computed(() => keywords.value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, ""))
+
 const selection = ref('')
-const filteredItems = computed(() => items.filter(item => item.includes(keywords.value)))
+const filteredItems = computed(() => optimizedItems.value.filter(item => {
+  return item.optimizedString.includes(normalizedKeywords.value)
+}))
 
 const selectItem = item => {
-  keywords.value = item
+  keywords.value = item.label
 }
 
 const onKeydown = e => {
@@ -31,7 +43,7 @@ const onKeydown = e => {
 .autocomplete
   input.autocomplete__input(v-model="keywords" @keydown="onKeydown")
   ul.autocomplete__menu
-    li(v-for="(item, i) in filteredItems" :key="i" @click="selectItem(item)") {{ item }}
+    li(v-for="(item, i) in filteredItems" :key="i" @click="selectItem(item)") {{ item.label }}
 </template>
 
 <style lang="scss">
